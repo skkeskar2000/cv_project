@@ -4,6 +4,5 @@ mediapipe
 streamlit
 streamlit_webrtc
 cvzone
-comtypes
 ctypes
 pycaw
