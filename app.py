@@ -2,15 +2,17 @@ import cv2
 import numpy as np
 import av
 import mediapipe as mp
+import streamlit as st
 from streamlit_webrtc import webrtc_streamer, WebRtcMode, RTCConfiguration
-import time
-from cvzone.HandTrackingModule import HandDetector
-import cvzone
-import math
-from ctypes import cast, POINTER
-from comtypes import CLSCTX_ALL
-from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
-import HandTrackingModule as htm
+# import time
+# from cvzone.HandTrackingModule import HandDetector
+# import cvzone
+# import math
+# from ctypes import cast, POINTER
+# from comtypes import CLSCTX_ALL
+# from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
+# import HandTrackingModule as htm
+
 
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
@@ -20,6 +22,7 @@ hands = mp_hands.Hands(
     min_detection_confidence=0.5,
     min_tracking_confidence=0.5
 )
+
 
 def process(image):
     image.flags.writeable = False
@@ -45,20 +48,17 @@ RTC_CONFIGURATION = RTCConfiguration(
 
 class VideoProcessor:
 
-    detector2 = HandDetector(detectionCon=0.8, maxHands=2)
-    detector = htm.handDetector(detectionCon=0.8,maxHands=2)
-    devices = AudioUtilities.GetSpeakers()
-    interface = devices.Activate(
-    IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
-    volume = cast(interface, POINTER(IAudioEndpointVolume))
+    # detector2 = HandDetector(detectionCon=0.8, maxHands=2)
+    # detector = htm.handDetector(detectionCon=0.8,maxHands=2)
+    # devices = AudioUtilities.GetSpeakers()
+    # interface = devices.Activate(
+    # IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
+    # volume = cast(interface, POINTER(IAudioEndpointVolume))
 
-# volume.GetMute()
-# volume.GetMasterVolumeLevel()
+    # volRange = volume.GetVolumeRange()
 
-    volRange = volume.GetVolumeRange()
-
-    minVol = volRange[0]
-    maxVol = volRange[1]
+    # minVol = volRange[0]
+    # maxVol = volRange[1]
     vol = 0
     volBar = 400
     volPer = 0
@@ -74,89 +74,118 @@ class VideoProcessor:
 
         img = process(img)
         
-        # FPS
-        self.cTime = time.time()
-        fps = 1 / (self.cTime - self.pTime)
-        self.pTime = self.cTime
-        cv2.putText(img, f'FPS: {int(fps)}', (40, 50), cv2.FONT_HERSHEY_COMPLEX,
-                1, (255, 0, 0), 3)
+    # FPS
+    
+        # self.cTime = time.time()
+        # fps = 1 / (self.cTime - self.pTime)
+        # self.pTime = self.cTime
+        # cv2.putText(img, f'FPS: {int(fps)}', (40, 50), cv2.FONT_HERSHEY_COMPLEX,
+        #         1, (255, 0, 0), 3)
 
     # Hand Distance
 
-        hands = self.detector2.findHands(img, draw=False)
-        image = self.detector.findHands(img)
+        # hands = self.detector2.findHands(img, draw=False)
+        # image = self.detector.findHands(img)
 
-        closehand = []
-        if hands:
-            for i in range(len(hands)):
+        # closehand = []
+        # if hands:
+        #     for i in range(len(hands)):
 
-                lmList = hands[i]['lmList']
-                x, y, w, h = hands[i]['bbox']
-                x1, y1 , z1 = lmList[5]
-                x2, y2 , z2 = lmList[17]
+        #         lmList = hands[i]['lmList']
+        #         x, y, w, h = hands[i]['bbox']
+        #         x1, y1 , z1 = lmList[5]
+        #         x2, y2 , z2 = lmList[17]
 
-                distance = int(math.sqrt((y2 - y1) ** 2 + (x2 - x1) ** 2))
-                A, B, C = self.coff
-                distanceCM = A * distance ** 2 + B * distance + C
-                closehand.append(distanceCM)
-                print(closehand)
+        #         distance = int(math.sqrt((y2 - y1) ** 2 + (x2 - x1) ** 2))
+        #         A, B, C = self.coff
+        #         distanceCM = A * distance ** 2 + B * distance + C
+        #         closehand.append(distanceCM)
 
-        # print(distanceCM, distance)
-                cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 255), 3)
-
-        numOfHands = len(closehand)
-        if(numOfHands==0):
-            position = self.detector.findPosition(image, draw=False)
-            print("No hands detected")
-        elif(numOfHands==1):
-            position = self.detector.findPosition(image, draw=False)
-            cvzone.putTextRect(img, f'{int(distanceCM)} cm', (50,100))
-        else:
-            if(closehand[0]>closehand[1]):
-                position = self.detector.findPosition(img, 1,draw=False)
-                cvzone.putTextRect(img, f'{int(closehand[1])} cm', (50,100))
-            else:
-                position = self.detector.findPosition(img, draw=False)
-                cvzone.putTextRect(img, f'{int(closehand[0])} cm', (50,100))
+        # numOfHands = len(closehand)
+        # if(numOfHands==0):
+        #     position = self.detector.findPosition(image, draw=False)
+        #     print("No hands detected")
+        # elif(numOfHands==1):
+        #     position = self.detector.findPosition(image, draw=False)
+        #     cvzone.putTextRect(img, f'{int(distanceCM)} cm', (50,100))
+        # else:
+        #     if(closehand[0]>closehand[1]):
+        #         position = self.detector.findPosition(img, 1,draw=False)
+        #         cvzone.putTextRect(img, f'{int(closehand[1])} cm', (50,100))
+        #     else:
+        #         position = self.detector.findPosition(img, draw=False)
+        #         cvzone.putTextRect(img, f'{int(closehand[0])} cm', (50,100))
        
+    # Volume Control
 
-        if len(position) != 0:
+        # if len(position) != 0:
 
-            xa1, ya1 = position[4][1], position[4][2]
-            xa2, ya2 = position[8][1], position[8][2]
-            cx, cy = (xa1 + xa2) // 2, (ya1 + ya2) // 2
+        #     xa1, ya1 = position[4][1], position[4][2]
+        #     xa2, ya2 = position[8][1], position[8][2]
+        #     cx, cy = (xa1 + xa2) // 2, (ya1 + ya2) // 2
 
 
-            cv2.circle(img, (xa1, ya1), 15, (255, 0, 255), cv2.FILLED)
-            cv2.circle(img, (xa2, ya2), 15, (255, 0, 255), cv2.FILLED)
-            cv2.line(img, (xa1, ya1), (xa2, ya2), (255, 0, 255), 3)
-            cv2.circle(img, (cx, cy), 15, (255, 0, 255), cv2.FILLED)
+        #     cv2.circle(img, (xa1, ya1), 15, (255, 0, 255), cv2.FILLED)
+        #     cv2.circle(img, (xa2, ya2), 15, (255, 0, 255), cv2.FILLED)
+        #     cv2.line(img, (xa1, ya1), (xa2, ya2), (255, 0, 255), 3)
+        #     cv2.circle(img, (cx, cy), 15, (255, 0, 255), cv2.FILLED)
 
-            length = math.hypot(xa2 - xa1, ya2 - ya1)
+        #     length = math.hypot(xa2 - xa1, ya2 - ya1)
 
-        # Hand range 50 - 235
-        # Volume Range -65 - 0
+        # # Hand range 50 - 235
+        # # Volume Range -65 - 0
 
-            self.vol = np.interp(length, [50, 235], [self.minVol, self.maxVol])
+        #     self.vol = np.interp(length, [50, 235], [self.minVol, self.maxVol])
 
-            self.volBar = np.interp(length, [50, 235], [400, 150])
-            self.volPer = np.interp(length, [50, 235], [0, 100])
+        #     self.volBar = np.interp(length, [50, 235], [400, 150])
+        #     self.volPer = np.interp(length, [50, 235], [0, 100])
 
-            self.volume.SetMasterVolumeLevel(self.vol, None)
+        #     self.volume.SetMasterVolumeLevel(self.vol, None)
 
-            if length < 50:
-                cv2.circle(img, (cx, cy), 15, (0, 255, 0), cv2.FILLED)
+        #     if length < 50:
+        #         cv2.circle(img, (cx, cy), 15, (0, 255, 0), cv2.FILLED)
 
-        cv2.rectangle(img, (50, 150), (85, 400), (255, 0, 0), 3)
-        cv2.rectangle(img, (50, int(self.volBar)), (85, 400), (255, 0, 0), cv2.FILLED)
-        cv2.putText(img, f'{int(self.volPer)} %', (40, 450), cv2.FONT_HERSHEY_COMPLEX,
-                1, (255, 0, 0), 3)
+        # cv2.rectangle(img, (50, 150), (85, 400), (255, 0, 0), 3)
+        # cv2.rectangle(img, (50, int(self.volBar)), (85, 400), (255, 0, 0), cv2.FILLED)
+        # cv2.putText(img, f'{int(self.volPer)} %', (40, 450), cv2.FONT_HERSHEY_COMPLEX,
+        #         1, (255, 0, 0), 3)
 
 
         return av.VideoFrame.from_ndarray(img, format="bgr24")
 
+def main():
+    # Face Analysis Application #
+    st.title("Gesture Volume Control using Hand Detection")
+    activiteis = ["Home", "Webcam Face Detection"]
+    choice = st.sidebar.selectbox("Select Activity", activiteis)
+    st.sidebar.markdown(
+        """ Developed by 
 
-webrtc_ctx = webrtc_streamer(
+            Group Members:
+            Saurabh_Keskar
+            Sahil Bhawani
+            Ajay Mahajan
+            Sushant Gawade
+        """)
+    if choice == "Home":
+        html_temp_home1 = """<div style="background-color:#6D7B8D;padding:10px">
+                                            <h4 style="color:white;text-align:center;">
+                                            The hand detected from video stream is used to control volume of device in real time using OpenCV , MediaPipe and PyCaw Libraries</h4>
+                                            </div>
+                                            </br>"""
+        st.markdown(html_temp_home1, unsafe_allow_html=True)
+        st.write("""
+                 The application has two functionalities.
+
+                 1. Real time Hand Detection using web cam feed
+
+                 2. Measure hand distance and control volume using nearest hand
+
+                 """)
+    elif choice == "Webcam Face Detection":
+        st.header("Webcam Live Feed")
+        st.write("Click on start to use webcam and detect your face emotion")
+        webrtc_streamer(
     key="WYH",
     mode=WebRtcMode.SENDRECV,
     rtc_configuration=RTC_CONFIGURATION,
@@ -164,3 +193,10 @@ webrtc_ctx = webrtc_streamer(
     video_processor_factory=VideoProcessor,
     async_processing=True,
 )
+
+    else:
+        pass
+
+if __name__ == "__main__":
+    main()
+    
