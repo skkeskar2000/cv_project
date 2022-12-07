@@ -4,4 +4,3 @@ mediapipe
 streamlit
 streamlit_webrtc
 cvzone
-av
