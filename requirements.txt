@@ -1,6 +1,7 @@
 opencv-python
 numpy
-mediapipe
 streamlit
 streamlit_webrtc
 cvzone
+import time
+import av
