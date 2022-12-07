@@ -1,10 +1,4 @@
-opencv-python
-numpy
-mediapipe
-streamlit
-streamlit_webrtc
-cvzone
-math
-comtypes
-ctypes
-pycaw
+python3-opencv
+streamlit                             
+streamlit_webrtc                                                           opencv-python                             
+mediapipe==0.8.9.1
