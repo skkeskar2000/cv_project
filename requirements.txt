@@ -1,6 +1,10 @@
-opencv-python-headless==4.5.4.60
+opencv-python
 numpy
+mediapipe
 streamlit
 streamlit_webrtc
 cvzone
-
+math
+comtypes
+ctypes
+pycaw
