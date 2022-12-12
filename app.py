@@ -3,10 +3,13 @@ import numpy as np
 import mediapipe as mp
 import streamlit as st
 from streamlit_webrtc import webrtc_streamer, WebRtcMode, RTCConfiguration
+import time
+import av
 
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_hands = mp.solutions.hands
+
 hands = mp_hands.Hands(
     model_complexity=1,
     min_detection_confidence=0.5,
@@ -59,6 +62,7 @@ class VideoProcessor:
         cv2.putText(img, f'FPS: {int(fps)}', (40, 50), cv2.FONT_HERSHEY_COMPLEX,
                 1, (255, 0, 0), 3)
 
+
         return av.VideoFrame.from_ndarray(img, format="bgr24")
 
 def main():
@@ -94,13 +98,13 @@ def main():
         st.header("Webcam Live Feed")
         st.write("Click on start to use webcam and detect your face emotion")
         webrtc_streamer(
-    key="WYH",
-    mode=WebRtcMode.SENDRECV,
-    rtc_configuration=RTC_CONFIGURATION,
-    media_stream_constraints={"video": True, "audio": False},
-    video_processor_factory=VideoProcessor,
-    async_processing=True,
-)
+            key="WYH",
+            mode=WebRtcMode.SENDRECV,
+            rtc_configuration=RTC_CONFIGURATION,
+            media_stream_constraints={"video": True, "audio": False},
+            video_processor_factory=VideoProcessor,
+            async_processing=True,
+        )
 
     else:
         pass
